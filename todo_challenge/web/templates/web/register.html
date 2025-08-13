@@ -1,0 +1,20 @@
+{% extends 'web/base.html' %}
+{% block title %}Registro{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="h4 mb-3">Registro</h1>
+        <form method="post" class="vstack gap-2">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Registrar</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'web/base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="h4 mb-3">Iniciar sesión</h1>
+        <form method="post" class="vstack gap-2">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Entrar</button>
+            </div>
+        </form>
+
+        {% if show_register %}
+          <hr class="my-4">
+          <div class="text-center">
+            <p class="mb-2">¿No tienes usuario?</p>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'web:register' %}">Registrarse</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

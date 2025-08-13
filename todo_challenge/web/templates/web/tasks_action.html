@@ -1,0 +1,24 @@
+{% if record.id %}
+  <form method="post" action="{% url 'web:task-toggle' record.id %}" class="d-inline">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button type="submit"
+            class="btn btn-sm me-1 {% if record.completed %}btn-warning{% else %}btn-success{% endif %}"
+            title="{% if record.completed %}Reabrir{% else %}Completar{% endif %}"
+            aria-label="{% if record.completed %}Reabrir{% else %}Completar{% endif %}">
+      {% if record.completed %}♻️{% else %}✅{% endif %}
+    </button>
+  </form>
+
+  <a href="{% url 'web:task-detail' record.id %}"
+     class="btn btn-sm me-1 btn-outline-secondary"
+     title="Ver detalle" aria-label="Ver detalle">🔍</a>
+
+  <form method="post" action="{% url 'web:task-delete' record.id %}" class="d-inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-sm btn-outline-danger"
+            title="Eliminar" aria-label="Eliminar">🗑️</button>
+  </form>
+{% else %}
+  <span class="text-muted">—</span>
+{% endif %}

@@ -1,0 +1,88 @@
+/* ====== Estilos generales ====== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fafafa;
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    background-color: #333;
+    padding: 10px;
+}
+
+nav a {
+    color: white;
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+hr {
+    margin: 15px 0;
+}
+
+/* ====== Mensajes ====== */
+.message-list {
+    list-style: none;
+    padding: 0;
+}
+
+.message {
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.message-success {
+    background-color: #e0ffe0;
+    color: #0a0;
+}
+
+.message-error {
+    background-color: #ffe0e0;
+    color: #a00;
+}
+
+.message-info {
+    background-color: #e0e0ff;
+    color: #00a;
+}
+
+/* ====== Formularios ====== */
+form {
+    margin-bottom: 15px;
+}
+
+form button {
+    background-color: #008cba;
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #005f73;
+}
+
+/* ====== Lista de tareas ====== */
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-item {
+    padding: 8px;
+    background-color: white;
+    margin-bottom: 5px;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.task-completed {
+    text-decoration: line-through;
+    color: gray;
+}
