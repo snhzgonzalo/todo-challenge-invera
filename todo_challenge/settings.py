@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -151,3 +152,28 @@ SIMPLE_JWT = {
 }
 
 DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap5.html"
+
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "django_server": {
+            "()": "django.utils.log.ServerFormatter",
+            "format": "[%(asctime)s] %(message)s",
+        },
+    },
+    "handlers": {
+        "all_file": {
+            "class": "logging.FileHandler",
+            "filename": str(LOG_DIR / "app.log"),
+            "formatter": "django_server",
+        },
+    },
+    "root": {
+        "handlers": ["all_file"],
+        "level": "INFO",
+    },
+}

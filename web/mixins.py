@@ -1,7 +1,11 @@
+import requests
+import logging
+
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.conf import settings
-import requests
+
+logger = logging.getLogger(__name__)
 
 
 class SessionRequiredMixin:
@@ -17,6 +21,9 @@ class SessionRequiredMixin:
 
 
 class ApiSessionMixin:
+    """
+    Interactua con la api a traves de requests.
+    """
     api_base = getattr(settings, "API_BASE_URL", "http://localhost:8000/api").rstrip("/")
     refresh_path = getattr(settings, "API_REFRESH_PATH", "/auth/token/refresh/")
     timeout = getattr(settings, "API_TIMEOUT", 6)
@@ -85,6 +92,7 @@ class ApiSessionMixin:
             return redirect("web:login")
 
         url = self.build_url(path)
+        logger.info(f"WEB → API {method} {url}")
         try:
             response = requests.request(
                 method,
@@ -95,6 +103,7 @@ class ApiSessionMixin:
                 timeout=self.timeout
             )
         except requests.RequestException:
+            logger.error(f"WEB → API ERROR {method} {url}")
             messages.error(request, "Error de conexión con el servidor.")
             return None
         if response.status_code == 401 and token_required:
@@ -112,12 +121,15 @@ class ApiSessionMixin:
                     timeout=self.timeout
                 )
             except requests.RequestException:
+                logger.error(f"WEB → API ERROR {method} {url}")
                 messages.error(request, "Error de conexión con el servidor.")
                 return None
         if 200 <= response.status_code < 300:
+            logger.info(f"API → WEB {response.status_code} {method} {url}")
             if success_msg:
                 messages.success(request, success_msg)
         else:
+            logger.warning(f"API → WEB {response.status_code} {method} {url}")
             messages.error(request, error_msg or f"Error ({response.status_code})")
 
         return response

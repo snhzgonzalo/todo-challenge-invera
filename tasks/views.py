@@ -14,17 +14,24 @@ from django.db import transaction
 
 from .models import Task
 from .serializers import TaskSerializer
-from .mixins import TaskOwnedQuerysetMixin
 from .filters import TaskFilter
 from .permissions import IsOwner
 
 
 class TaskBaseView(GenericAPIView):
+    """
+    Base view para definir queryset de view por usuario
+    """
     def get_queryset(self):
         return Task.objects.filter(user=self.request.user)
 
 
 class TaskListCreateView(TaskBaseView, ListCreateAPIView):
+    """
+    List y Create view unificadas
+    GET: Lista todas las tareas del usuario.
+    POST: Crea una nueva task
+    """
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -37,11 +44,17 @@ class TaskListCreateView(TaskBaseView, ListCreateAPIView):
 
 
 class TaskDetailView(TaskBaseView, RetrieveUpdateDestroyAPIView):
+    """
+    Detail view con principio RESTful
+    """
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated, IsOwner]
 
 
 class TaskToggleView(TaskBaseView, UpdateAPIView):
+    """
+    Actualiza el estado de la tarea especificamente
+    """
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated, IsOwner]
 

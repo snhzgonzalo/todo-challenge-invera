@@ -2,16 +2,31 @@ from django import forms
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=150)
-    password = forms.CharField(widget=forms.PasswordInput)
+    """
+    Formulario para autenticarse en sistema
+    """
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            "class": "form-control form-control-sm",
+        }),
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control form-control-sm",
+        }),
+    )
 
 
-class RegisterForm(forms.Form):
-    username = forms.CharField(max_length=150)
-    password = forms.CharField(widget=forms.PasswordInput)
-
+class RegisterForm(LoginForm):
+    """
+    Formulario para registrarse en sistema
+    """
 
 class TaskForm(forms.Form):
+    """
+    Formulario para registrar una nueva tarea
+    """
     title = forms.CharField(
         max_length=255,
         label="Título",
@@ -40,6 +55,9 @@ class TaskForm(forms.Form):
 
 
 class TaskUpdateForm(TaskForm):
+    """
+    Formulario para actualizar los campos de una tarea existente.
+    """
     completed = forms.BooleanField(
         required=False,
         label="Completada",

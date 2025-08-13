@@ -2,6 +2,9 @@ import django_tables2 as tables
 
 
 class TaskTable(tables.Table):
+    """
+    Tabla para renderizar los contenidos obtenidos desde API
+    """
     title = tables.Column(verbose_name="Tarea")
     completed = tables.Column(verbose_name="Completada")
     created_at = tables.Column(verbose_name="Creada")

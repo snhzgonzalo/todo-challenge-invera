@@ -1,3 +1,5 @@
+import logging
+
 from django_tables2 import RequestConfig
 
 from django.shortcuts import render, redirect
@@ -15,6 +17,8 @@ from .forms import (
 from .mixins import ApiSessionMixin, SessionRequiredMixin
 from .tables import TaskTable
 
+logger = logging.getLogger(__name__)
+
 
 class RedirectToLoginView(View):
     """Redirige / a login o tareas según sesión."""
@@ -25,6 +29,11 @@ class RedirectToLoginView(View):
 
 
 class LoginView(ApiSessionMixin, View):
+    """
+    Permite iniciar sesion.
+    GET: Comprueba si hay una sesion activa o manda a login
+    POST: Autentica y refresca los tokens dependiendo si existe el usuario
+    """
     def get(self, request):
         response = None
         if request.session.get("access"):
@@ -34,10 +43,12 @@ class LoginView(ApiSessionMixin, View):
         return response
 
     def post(self, request):
-        context = {"form": LoginForm(request.POST), "show_register": True}
+        context = {"form": LoginForm(request.POST)}
         if request.session.get("access"):
+            logger.info("WEB login ya autenticado")
             result = redirect("web:tasks")
         elif not context["form"].is_valid():
+            logger.info("WEB login form inválido")
             result = render(request, "web/login.html", context)
         else:
             res = self.api_request(
@@ -49,23 +60,31 @@ class LoginView(ApiSessionMixin, View):
                 error_msg="Usuario o contraseña incorrectos."
             )
             if res and res.status_code == 200:
+                logger.info("WEB login ok")
                 tokens = res.json()
                 request.session["access"] = tokens.get("access")
                 request.session["refresh"] = tokens.get("refresh")
                 messages.success(request, "Inicio de sesión exitoso.")
                 result = redirect("web:tasks")
             else:
+                logger.warning("WEB login fallido")
                 result = render(request, "web/login.html", context)
         return result
 
 
 class RegisterView(ApiSessionMixin, View):
+    """
+    Registra usuarios
+    GET: Devuelve la view y el template para registrarse
+    POST: Registra al usuario si el formulario es valido
+    """
     def get(self, request):
         return render(request, "web/register.html", {"form": RegisterForm()})
 
     def post(self, request):
         context = {"form": RegisterForm(request.POST)}
         if not context["form"].is_valid():
+            logger.info("WEB register form inválido")
             result = render(request, "web/register.html", context)
         else:
             res = self.api_request(
@@ -77,9 +96,11 @@ class RegisterView(ApiSessionMixin, View):
                 error_msg="Error al registrar usuario."
             )
             if res and res.status_code == 201:
+                logger.info("WEB register ok")
                 messages.success(request, "Usuario registrado. Ahora puede iniciar sesión.")
                 result = redirect("web:login")
             else:
+                logger.warning("WEB register fallido")
                 result = render(request, "web/register.html", context)
         return result
 
@@ -88,7 +109,11 @@ class LogoutView(
     SessionRequiredMixin,
     View
 ):
+    """
+    Limpia la sesion existente con flush().
+    """
     def get(self, request):
+        logger.info(f"WEB usuario {request.user} cerro sesion")
         request.session.flush()
         messages.info(request, "Sesión cerrada.")
         return redirect("web:login")
@@ -99,6 +124,11 @@ class TaskListCreateView(
     ApiSessionMixin, 
     View
 ):
+    """
+    List y Create view unificadas.
+    GET: Lista todas las tareas del usuario en una tabla funcional
+    POST: Crea una nueva task y envia mensaje de confirmacion
+    """
     def get(self, request):
         filter_form = TaskFilterForm(request.GET or None)
         params = {}
@@ -143,6 +173,7 @@ class TaskListCreateView(
     def post(self, request):
         form = TaskForm(request.POST)
         if not form.is_valid():
+            logger.info("WEB task create form inválido")
             return redirect("web:tasks")
 
         resp = self.api_request(
@@ -153,6 +184,7 @@ class TaskListCreateView(
         )
         if isinstance(resp, HttpResponseBase):
             return resp
+        logger.info("WEB task creada")
         return redirect("web:tasks")
 
 
@@ -161,6 +193,9 @@ class TaskDetailPageView(
     ApiSessionMixin,
     View
 ):
+    """
+    Accede al detail view de una tarea
+    """
     def get(self, request, pk):
         resp = self.api_request(
             "GET", f"/{pk}/", request,
@@ -185,6 +220,9 @@ class TaskUpdateView(
     ApiSessionMixin,
     View
 ):
+    """
+    Accede al update view de una tarea
+    """
     def get(self, request, pk):
         resp = self.api_request(
             "GET", f"/{pk}/", request,
@@ -212,6 +250,7 @@ class TaskUpdateView(
     def post(self, request, pk):
         form = TaskUpdateForm(request.POST)
         if not form.is_valid():
+            logger.info(f"WEB task update form inválido {pk}")
             return render(request, "web/tasks_edit.html", {"form": form, "task_id": pk})
 
         payload = {
@@ -229,7 +268,9 @@ class TaskUpdateView(
         if isinstance(resp, HttpResponseBase):
             return resp
         if resp and 200 <= resp.status_code < 300:
+            logger.info(f"WEB task actualizada {pk}")
             return redirect("web:task-detail", pk=pk)
+        logger.warning(f"WEB task update errores {pk}")
         try:
             errors = resp.json()
         except Exception:
@@ -241,6 +282,9 @@ class TaskUpdateView(
 
 
 class TaskToggleView(SessionRequiredMixin, ApiSessionMixin, View):
+    """
+    View personalizada para modificar el estado de una tarea
+    """
     def post(self, request, pk):
         resp = self.api_request(
             "PATCH",
@@ -252,6 +296,7 @@ class TaskToggleView(SessionRequiredMixin, ApiSessionMixin, View):
             return resp
 
         if resp and resp.status_code == 200:
+            logger.info(f"WEB task toggle {pk}")
             try:
                 data = resp.json()
                 messages.success(
@@ -260,6 +305,7 @@ class TaskToggleView(SessionRequiredMixin, ApiSessionMixin, View):
                 )
             except ValueError:
                 messages.error(request, "Error al procesar la respuesta del servidor.")
+        next_url = request.POST.get("next")
         return redirect(next_url or "web:tasks")
 
 
@@ -268,6 +314,9 @@ class TaskDeleteView(
     ApiSessionMixin,
     View
 ):
+    """
+    Elimina una tarea
+    """
     def post(self, request, pk):
         resp = self.api_request(
             "DELETE",
@@ -278,4 +327,5 @@ class TaskDeleteView(
         )
         if isinstance(resp, HttpResponseBase):
             return resp
+        logger.info(f"WEB task eliminada {pk}")
         return redirect("web:tasks")

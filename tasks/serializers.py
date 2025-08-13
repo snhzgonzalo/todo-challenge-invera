@@ -4,6 +4,7 @@ from .models import Task
 
 User = get_user_model()
 
+
 class TaskSerializer(serializers.ModelSerializer):
     """Serializador para exponer/validar tareas."""
     class Meta:

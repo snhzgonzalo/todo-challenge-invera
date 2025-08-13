@@ -14,13 +14,11 @@
             </div>
         </form>
 
-        {% if show_register %}
-          <hr class="my-4">
-          <div class="text-center">
-            <p class="mb-2">¿No tienes usuario?</p>
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'web:register' %}">Registrarse</a>
-          </div>
-        {% endif %}
+        <hr class="my-4">
+        <div class="text-center">
+          <p class="mb-2">¿No tienes usuario?</p>
+          <a class="btn btn-outline-secondary btn-sm" href="{% url 'web:register' %}">Registrarse</a>
+        </div>
       </div>
     </div>
   </div>
