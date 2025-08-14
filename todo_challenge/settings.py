@@ -177,3 +177,7 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+API_BASE_URL = "http://localhost:8000/api"
+API_REFRESH_PATH = "/auth/token/refresh/"
+API_TIMEOUT = 6

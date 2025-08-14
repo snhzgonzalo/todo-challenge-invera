@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class SessionRequiredMixin:
     """
     Exige sesión en cualquier CBV protegida.
-    Evita que se renderice la vista vacía si no hay token.
+    Evita que se renderice la vista vacia si no hay token.
     """
     def dispatch(self, request, *args, **kwargs):
         if not request.session.get("access"):
@@ -24,9 +24,20 @@ class ApiSessionMixin:
     """
     Interactua con la api a traves de requests.
     """
-    api_base = getattr(settings, "API_BASE_URL", "http://localhost:8000/api").rstrip("/")
-    refresh_path = getattr(settings, "API_REFRESH_PATH", "/auth/token/refresh/")
-    timeout = getattr(settings, "API_TIMEOUT", 6)
+    def _require(self, name):
+        return getattr(settings, name)
+
+    @property
+    def api_base(self):
+        return self._require("API_BASE_URL")
+
+    @property
+    def refresh_path(self):
+        return self._require("API_REFRESH_PATH")
+
+    @property
+    def timeout(self):
+        return self._require("API_TIMEOUT")
 
     def build_url(self, path):
         return f"{self.api_base}/{str(path).lstrip('/')}"
