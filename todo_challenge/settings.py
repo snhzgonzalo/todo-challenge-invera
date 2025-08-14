@@ -84,7 +84,7 @@ WSGI_APPLICATION = "todo_challenge.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": str(BASE_DIR / "data" / "db.sqlite3"),
     }
 }
 
@@ -153,9 +153,6 @@ SIMPLE_JWT = {
 
 DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap5.html"
 
-LOG_DIR = BASE_DIR / "logs"
-LOG_DIR.mkdir(exist_ok=True)
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -168,7 +165,7 @@ LOGGING = {
     "handlers": {
         "all_file": {
             "class": "logging.FileHandler",
-            "filename": str(LOG_DIR / "app.log"),
+            "filename": os.path.join(BASE_DIR, "logs", "django.log"),
             "formatter": "django_server",
         },
     },

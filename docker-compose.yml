@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    container_name: todo_challenge
+    ports:
+      - "8000:8000"
+    volumes:
+      - app_data:/app/data
+      - logs:/app/logs
+    environment:
+      - DJANGO_SETTINGS_MODULE=todo_challenge.settings
+
+volumes:
+  app_data:
+  logs:
