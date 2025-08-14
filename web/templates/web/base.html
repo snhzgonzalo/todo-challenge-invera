@@ -9,7 +9,6 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Barra superior -->
     <nav class="navbar navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'web:root' %}">ToDo Challenge</a>
@@ -21,10 +20,8 @@
         </div>
     </nav>
 
-    <!-- Contenido principal -->
     <main class="py-4">
         <div class="container">
-            <!-- Mensajes -->
             {% if messages %}
                 <div class="row">
                     <div class="col-12">

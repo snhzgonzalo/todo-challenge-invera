@@ -66,6 +66,9 @@ class TaskUpdateForm(TaskForm):
 
 
 class TaskFilterForm(forms.Form):
+    """
+    Formulario para filtros en tabla de tasks
+    """
     completed = forms.ChoiceField(
         required=False,
         choices=(("", "Todas"), ("true", "Completadas"), ("false", "Pendientes")),

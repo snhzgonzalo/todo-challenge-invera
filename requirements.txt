@@ -1,6 +1,12 @@
-Django>=5.0,<6.0
-djangorestframework>=3.15,<4.0
-djangorestframework-simplejwt>=5.3,<6.0
-django-filter>=24.2
+Django
+djangorestframework
+djangorestframework-simplejwt
+django-filter
 django_tables2
 requests
+pytest
+pytest-django
+pytest-cov
+factory_boy
+Faker
+black
