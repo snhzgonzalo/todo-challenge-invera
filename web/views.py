@@ -43,33 +43,32 @@ class LoginView(ApiSessionMixin, View):
         return response
 
     def post(self, request):
-        context = {"form": LoginForm(request.POST)}
         if request.session.get("access"):
             logger.info("WEB login ya autenticado")
-            result = redirect("web:tasks")
-        elif not context["form"].is_valid():
+            return redirect("web:tasks")
+
+        form = LoginForm(request.POST)
+        if not form.is_valid():
             logger.info("WEB login form inválido")
-            result = render(request, "web/login.html", context)
-        else:
-            res = self.api_request(
-                "POST",
-                "/users/auth/token/",
-                request,
-                data=context["form"].cleaned_data,
-                token_required=False,
-                error_msg="Usuario o contraseña incorrectos."
-            )
-            if res and res.status_code == 200:
-                logger.info("WEB login ok")
-                tokens = res.json()
-                request.session["access"] = tokens.get("access")
-                request.session["refresh"] = tokens.get("refresh")
-                messages.success(request, "Inicio de sesión exitoso.")
-                result = redirect("web:tasks")
-            else:
-                logger.warning("WEB login fallido")
-                result = render(request, "web/login.html", context)
-        return result
+            return render(request, "web/login.html", {"form": form})
+
+        res = self.api_request(
+            "POST",
+            "/users/auth/token/",
+            request,
+            data=form.cleaned_data,
+            token_required=False,
+            error_msg="Usuario o contraseña incorrectos. Si no tenés cuenta, registrate.",
+        )
+
+        if res and res.status_code == 200:
+            logger.info("WEB login ok")
+            tokens = res.json()
+            request.session["access"] = tokens.get("access")
+            request.session["refresh"] = tokens.get("refresh")
+            messages.success(request, "Inicio de sesión exitoso.")
+            return redirect("web:tasks")
+        return render(request, "web/login.html", {"form": form})
 
 
 class RegisterView(ApiSessionMixin, View):
